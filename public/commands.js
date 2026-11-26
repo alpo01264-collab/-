@@ -1,0 +1,95 @@
+/* Справочник команд для панели «?»
+   Каждый пункт: cmd — что подставится в строку ввода, desc — пояснение. */
+window.COMMAND_GROUPS = [
+  {
+    name: 'Файлы',
+    items: [
+      { cmd: 'pwd', desc: 'Показать текущую папку' },
+      { cmd: 'ls -la', desc: 'Все файлы в папке, включая скрытые' },
+      { cmd: 'cd ~', desc: 'Перейти в домашнюю папку' },
+      { cmd: 'cd ..', desc: 'Подняться на уровень выше' },
+      { cmd: 'cd /tmp', desc: 'Перейти в другую папку' },
+      { cmd: 'cat README.md', desc: 'Показать содержимое файла' },
+      { cmd: 'mkdir новая_папка', desc: 'Создать папку' },
+      { cmd: 'touch файл.txt', desc: 'Создать пустой файл' },
+      { cmd: 'cp файл.txt файл.bak', desc: 'Скопировать файл' },
+      { cmd: 'mv файл.txt папка/', desc: 'Переместить или переименовать' },
+      { cmd: 'rm -rf папка', desc: 'Удалить папку со всем содержимым (осторожно)' },
+      { cmd: 'find . -name "*.js"', desc: 'Найти файлы по имени' },
+      { cmd: 'du -sh *', desc: 'Размер файлов и папок' },
+      { cmd: 'df -h', desc: 'Свободное место на диске' },
+    ],
+  },
+  {
+    name: 'Текст',
+    items: [
+      { cmd: 'grep -rn "текст" .', desc: 'Найти строку во всех файлах' },
+      { cmd: 'head -n 20 файл.txt', desc: 'Первые 20 строк файла' },
+      { cmd: 'tail -n 20 файл.txt', desc: 'Последние 20 строк файла' },
+      { cmd: 'tail -f app.log', desc: 'Следить за файлом в реальном времени' },
+      { cmd: 'wc -l файл.txt', desc: 'Посчитать строки' },
+      { cmd: 'sort файл.txt | uniq -c', desc: 'Сортировка и подсчёт повторов' },
+      { cmd: "sed -i 's/старое/новое/g' файл.txt", desc: 'Заменить текст в файле' },
+      { cmd: 'cat файл.txt | less', desc: 'Постраничный просмотр (листается стрелками, q — выход)' },
+    ],
+  },
+  {
+    name: 'Система',
+    items: [
+      { cmd: 'whoami', desc: 'Кто я в системе' },
+      { cmd: 'uname -a', desc: 'Информация о системе' },
+      { cmd: 'date', desc: 'Текущие дата и время' },
+      { cmd: 'uptime', desc: 'Время работы и загрузка' },
+      { cmd: 'ps aux', desc: 'Список процессов' },
+      { cmd: 'ps aux | grep node', desc: 'Найти процесс по имени' },
+      { cmd: 'free -m', desc: 'Использование памяти' },
+      { cmd: 'env', desc: 'Переменные окружения' },
+      { cmd: 'history', desc: 'История команд этой сессии' },
+      { cmd: 'clear', desc: 'Очистить экран' },
+    ],
+  },
+  {
+    name: 'Сеть',
+    items: [
+      { cmd: 'ip a', desc: 'Сетевые интерфейсы и адреса' },
+      { cmd: 'ping -c 4 1.1.1.1', desc: 'Проверить связь (4 пакета)' },
+      { cmd: 'curl -I https://example.com', desc: 'Заголовки ответа сервера' },
+      { cmd: 'curl https://api.github.com', desc: 'GET-запрос и тело ответа' },
+      { cmd: 'ss -tulpn', desc: 'Открытые порты' },
+      { cmd: 'dig example.com', desc: 'DNS-запись домена' },
+      { cmd: 'wget https://example.com/file.zip', desc: 'Скачать файл' },
+    ],
+  },
+  {
+    name: 'Git',
+    items: [
+      { cmd: 'git status', desc: 'Состояние рабочей копии' },
+      { cmd: 'git log --oneline -10', desc: 'Последние 10 коммитов' },
+      { cmd: 'git diff', desc: 'Незакоммиченные изменения' },
+      { cmd: 'git branch', desc: 'Список веток' },
+      { cmd: 'git checkout -b feature', desc: 'Создать и переключиться на ветку' },
+      { cmd: 'git add -A && git commit -m "..."', desc: 'Добавить всё и закоммитить' },
+      { cmd: 'git push', desc: 'Отправить коммиты на сервер' },
+    ],
+  },
+  {
+    name: 'Разработка',
+    items: [
+      { cmd: 'node -v', desc: 'Версия Node.js' },
+      { cmd: 'npm -v', desc: 'Версия npm' },
+      { cmd: 'npm install', desc: 'Установить зависимости проекта' },
+      { cmd: 'npm run dev', desc: 'Запустить дев-сервер' },
+      { cmd: 'npm test', desc: 'Запустить тесты' },
+      { cmd: 'python3 --version', desc: 'Версия Python' },
+      { cmd: 'pip3 list', desc: 'Установленные Python-пакеты' },
+      { cmd: 'ls | wc -l', desc: 'Сколько файлов в папке' },
+    ],
+  },
+  {
+    name: 'Помощь',
+    items: [
+      { cmd: 'help', desc: 'Открыть этот список команд' },
+      { cmd: 'clear', desc: 'Очистить экран терминала' },
+    ],
+  },
+];

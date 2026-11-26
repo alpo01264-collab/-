@@ -1,0 +1,19 @@
+{
+  "name": "Арена Терминал",
+  "short_name": "Терминал",
+  "description": "Мобильный терминал с подсказками по командам",
+  "start_url": "/",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#080b0a",
+  "theme_color": "#0b0f0e",
+  "lang": "ru",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
