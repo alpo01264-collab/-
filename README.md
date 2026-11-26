@@ -46,6 +46,30 @@ public/manifest.webmanifest, icon.svg
 | `POST` | `/api/complete` | `{ sessionId, prefix }` → `{ items: [...] }` |
 | `GET` | `/healthz` | проверка живости |
 
+## APK для Android
+
+Готовый APK собирается автоматически в GitHub Actions и лежит в релизе
+[`apk-latest`](https://github.com/alpo01264-collab/-/releases/tag/apk-latest)
+(файл `arena-terminal.apk`, артефакт сборки также доступен во вкладке Actions).
+
+1. Скачайте `arena-terminal.apk` на телефон и разрешите установку из неизвестного источника.
+2. Запустите сервер на компьютере: `npm start` (телефон и компьютер — в одной Wi-Fi сети).
+3. В приложении укажите адрес сервера, например `http://192.168.1.10:3000`.
+4. Адрес можно поменять позже: кнопка ⚙ в правом верхнем углу, долгое нажатие на «Терминал»
+   в шапке или пункт «Настройки сервера» в меню по кнопке «Назад».
+
+Сборка — `.github/workflows/android-apk.yml` (Gradle 8.7, JDK 17, AGP 8.5, без сторонних
+библиотек). Локально:
+
+```bash
+cd android && gradle assembleDebug
+# app/build/outputs/apk/debug/app-debug.apk
+```
+
+Исходники обёртки: `android/app/src/main` — `MainActivity.java` (WebView, хранение адреса,
+меню, кнопка «Назад»), `res/raw/native_bridge.js` (кнопка ⚙ и жесты на странице).
+APK подписан отладочным ключом — для личной установки этого достаточно.
+
 ## Важно про безопасность
 
 Сервер выполняет любые команды от имени своего пользователя, без авторизации.

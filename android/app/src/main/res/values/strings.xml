@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Терминал</string>
+    <string name="setup_title">Терминал</string>
+    <string name="setup_subtitle">Оболочка bash на вашем сервере — в кармане.</string>
+    <string name="setup_card_title">АДРЕС СЕРВЕРА</string>
+    <string name="setup_hint">http://192.168.1.10:3000</string>
+    <string name="setup_connect">Подключиться</string>
+    <string name="setup_cancel">Отмена</string>
+    <string name="setup_footer">Запустите сервер командой npm start на компьютере или в песочнице, затем укажите его адрес. Изменить адрес можно позже: кнопка ⚙ в правом верхнем углу или кнопка «Назад».</string>
+    <string name="error_prefix">Не удалось открыть страницу.</string>
+    <string name="error_hint">Проверьте адрес: сервер должен быть запущен и доступен с телефона.</string>
+    <string name="invalid_url">Похоже, адрес указан неверно. Пример: http://192.168.1.10:3000</string>
+    <string name="back_title">Терминал</string>
+    <string name="back_refresh">Обновить</string>
+    <string name="back_settings">Настройки сервера</string>
+    <string name="back_exit">Выход</string>
+    <string name="back_cancel">Отмена</string>
+</resources>
