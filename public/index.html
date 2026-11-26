@@ -1,0 +1,111 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="utf-8" />
+  <title>Терминал</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f0e" />
+  <meta name="color-scheme" content="dark" />
+  <meta name="description" content="Мобильный терминал с подсказками по командам" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <link rel="manifest" href="/manifest.webmanifest" />
+  <link rel="icon" href="/icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="/icon.svg" />
+  <link rel="stylesheet" href="/styles.css" />
+</head>
+<body>
+  <div class="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="status-dot" id="statusDot" aria-hidden="true"></span>
+        <div class="brand-text">
+          <span class="brand-title">Терминал</span>
+          <span class="brand-host" id="hostLabel">подключение…</span>
+        </div>
+      </div>
+
+      <button class="help-button" id="helpBtn" type="button" aria-label="Показать список команд" aria-haspopup="dialog" title="Какие есть команды?">
+        <span aria-hidden="true">?</span>
+      </button>
+    </header>
+
+    <main class="screen" id="screen">
+      <div class="output" id="output" role="log" aria-live="polite" aria-label="Вывод терминала"></div>
+      <button class="jump-button" id="jumpBtn" type="button" hidden>↓ вниз</button>
+    </main>
+
+    <div class="suggestions" id="suggestions" hidden></div>
+
+    <div class="keys" id="keys">
+      <button class="key" type="button" data-action="ctrl-c">Ctrl C</button>
+      <button class="key" type="button" data-action="tab">Tab</button>
+      <button class="key" type="button" data-action="prev">↑</button>
+      <button class="key" type="button" data-action="next">↓</button>
+      <button class="key" type="button" data-action="clear">clear</button>
+      <button class="key key-help" type="button" data-action="help">команды</button>
+    </div>
+
+    <form class="composer" id="form" autocomplete="off">
+      <label class="prompt" id="promptLabel" for="input"><span class="prompt-path">~</span><span class="prompt-sign">$</span></label>
+      <textarea
+        id="input"
+        class="input"
+        rows="1"
+        spellcheck="false"
+        autocapitalize="none"
+        autocorrect="off"
+        autocomplete="off"
+        enterkeyhint="send"
+        placeholder="введите команду…"
+        aria-label="Команда"
+      ></textarea>
+      <button class="send-button" id="sendBtn" type="submit" aria-label="Выполнить команду">
+        <span id="sendIcon" aria-hidden="true">↑</span>
+      </button>
+    </form>
+  </div>
+
+  <!-- Нижняя панель со списком команд -->
+  <div class="sheet" id="sheet" role="dialog" aria-modal="true" aria-labelledby="sheetTitle" aria-hidden="true">
+    <div class="sheet-backdrop" data-close="true"></div>
+    <div class="sheet-panel" role="document">
+      <div class="sheet-handle" aria-hidden="true"></div>
+
+      <div class="sheet-head">
+        <div>
+          <h2 class="sheet-title" id="sheetTitle">Команды</h2>
+          <p class="sheet-subtitle">Нажмите на команду — она подставится в строку ввода</p>
+        </div>
+        <button class="sheet-close" type="button" id="sheetClose" aria-label="Закрыть">
+          <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true">
+            <path d="M6 6l12 12M18 6L6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+          </svg>
+        </button>
+      </div>
+
+      <div class="sheet-search">
+        <svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" class="search-icon">
+          <circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2" />
+          <path d="M20 20l-3.5-3.5" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" />
+        </svg>
+        <input type="search" id="searchInput" class="search-input" placeholder="Поиск: git, файлы, сеть…" autocomplete="off" />
+      </div>
+
+      <div class="categories" id="categories" role="tablist" aria-label="Категории команд"></div>
+
+      <div class="command-list" id="commandList"></div>
+
+      <p class="sheet-note">
+        Интерактивные программы вроде <code>vim</code>, <code>nano</code> или <code>top</code> не поддерживаются —
+        используйте <code>cat</code>, <code>head</code>, <code>ps aux</code>. Полный доступ к оболочке: будьте осторожны
+        с <code>rm -rf</code>.
+      </p>
+    </div>
+  </div>
+
+  <script src="/commands.js"></script>
+  <script src="/app.js"></script>
+</body>
+</html>
