@@ -93,8 +93,8 @@ jobs:
           PKG_NAME="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* name='([^']+)'.*/\1/")"
           VERSION_NAME="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* versionName='([^']*)'.*/\1/")"
           VERSION_CODE="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* versionCode='([0-9]+)'.*/\1/")"
-          MIN_SDK="$(grep -m1 '^sdkVersion:' "$BADGING" | sed -E "s/.*'([0-9]+)'.*/\1/")"
-          TARGET_SDK="$(grep -m1 '^targetSdkVersion:' "$BADGING" | sed -E "s/.*'([0-9]+)'.*/\1/")"
+          MIN_SDK="$(grep -oE "sdkVersion:'[0-9]+'" "$BADGING" | head -1 | grep -oE '[0-9]+')"
+          TARGET_SDK="$(grep -oE "targetSdkVersion:'[0-9]+'" "$BADGING" | head -1 | grep -oE '[0-9]+')"
           LABEL="$(grep -m1 '^application-label:' "$BADGING" | sed -E "s/^application-label:'([^']*)'.*/\1/")"
 
           case "$MIN_SDK" in
@@ -130,6 +130,14 @@ jobs:
 
           Сервер выполняет команды без авторизации — используйте приложение только в доверенной сети.
           NOTES
+
+          if [ -z "$MIN_SDK" ] || [ -z "$TARGET_SDK" ]; then
+            {
+              echo ""
+              echo "<!-- диагностика: не удалось прочитать sdk из badging -->"
+              head -20 "$BADGING"
+            } >> "$RUNNER_TEMP/notes.md"
+          fi
 
           if gh release view apk-latest >/dev/null 2>&1; then
             gh release upload apk-latest dist/arena-terminal.apk --clobber
