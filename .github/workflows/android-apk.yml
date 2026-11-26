@@ -90,12 +90,12 @@ jobs:
           SHA="$(sha256sum dist/arena-terminal.apk | cut -d' ' -f1)"
           SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
 
-          PKG_NAME="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* name='([^']+)'.*/\1/")"
-          VERSION_NAME="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* versionName='([^']*)'.*/\1/")"
-          VERSION_CODE="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* versionCode='([0-9]+)'.*/\1/")"
-          MIN_SDK="$(grep -oE "sdkVersion:'[0-9]+'" "$BADGING" | head -1 | grep -oE '[0-9]+')"
-          TARGET_SDK="$(grep -oE "targetSdkVersion:'[0-9]+'" "$BADGING" | head -1 | grep -oE '[0-9]+')"
-          LABEL="$(grep -m1 '^application-label:' "$BADGING" | sed -E "s/^application-label:'([^']*)'.*/\1/")"
+          PKG_NAME="$(awk -F"'" '/^package:/ {print $2; exit}' "$BADGING")"
+          VERSION_CODE="$(awk -F"'" '/^package:/ {print $4; exit}' "$BADGING")"
+          VERSION_NAME="$(awk -F"'" '/^package:/ {print $6; exit}' "$BADGING")"
+          MIN_SDK="$(awk -F"'" '(/^sdkVersion:/ || /^minSdkVersion:/) {print $2; exit}' "$BADGING")"
+          TARGET_SDK="$(awk -F"'" '/^targetSdkVersion:/ {print $2; exit}' "$BADGING")"
+          LABEL="$(awk -F"'" '/^application-label:/ {print $2; exit}' "$BADGING")"
 
           case "$MIN_SDK" in
             23) ANDROID_MIN="6.0" ;;
@@ -134,8 +134,10 @@ jobs:
           if [ -z "$MIN_SDK" ] || [ -z "$TARGET_SDK" ]; then
             {
               echo ""
-              echo "<!-- диагностика: не удалось прочитать sdk из badging -->"
+              echo "### Диагностика APK"
+              echo '```'
               head -20 "$BADGING"
+              echo '```'
             } >> "$RUNNER_TEMP/notes.md"
           fi
 
