@@ -46,23 +46,24 @@ jobs:
           {
             echo "### APK готов"
             echo ""
-            echo "- Файл: \`arena-terminal.apk\`"
             echo "- Размер: $(du -h dist/arena-terminal.apk | cut -f1)"
-            echo "- SHA-256: \`$(sha256sum dist/arena-terminal.apk | cut -d' ' -f1)\`"
+            echo "- SHA-256: $(sha256sum dist/arena-terminal.apk | cut -d' ' -f1)"
           } >> "$GITHUB_STEP_SUMMARY"
 
       - name: Проверить APK
         run: |
           SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
           BUILD_TOOLS="$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)"
-          echo "build-tools: $BUILD_TOOLS"
-          "$BUILD_TOOLS/aapt2" dump badging dist/arena-terminal.apk | head -12
-          "$BUILD_TOOLS/apksigner" verify --print-certs dist/arena-terminal.apk | head -6
+          "$BUILD_TOOLS/aapt2" dump badging dist/arena-terminal.apk > "$RUNNER_TEMP/badging.txt"
+          grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity):" \
+            "$RUNNER_TEMP/badging.txt" | head -8
+          "$BUILD_TOOLS/apksigner" verify --print-certs dist/arena-terminal.apk | head -4
           {
             echo ""
-            echo "### Проверка"
+            echo "### Проверка APK"
             echo '```'
-            "$BUILD_TOOLS/aapt2" dump badging dist/arena-terminal.apk | head -6
+            grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity):" \
+              "$RUNNER_TEMP/badging.txt" | head -8
             "$BUILD_TOOLS/apksigner" verify --print-certs dist/arena-terminal.apk | head -3
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -78,10 +79,37 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          SIZE="$(du -h dist/arena-terminal.apk | cut -f1)"
+          SHA="$(sha256sum dist/arena-terminal.apk | cut -d' ' -f1)"
+          SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
+
+          cat > "$RUNNER_TEMP/notes.md" <<NOTES
+          ## Терминал для Android
+
+          Мобильный клиент терминала: открывает веб-интерфейс вашего сервера и запоминает его адрес.
+          После установки укажите адрес сервера — например http://192.168.1.10:3000.
+
+          - **Сборка:** ветка $GITHUB_REF_NAME, коммит $SHORT_SHA
+          - **Размер:** $SIZE
+          - **SHA-256:** $SHA
+          - **Пакет:** ai.arena.terminal 1.0 (код 1), Android 6.0+
+          - **Подпись:** отладочная (Android Debug) — только для личной установки
+
+          ### Как подключиться
+
+          1. Запустите сервер терминала: npm start (нужен Node.js 18+).
+          2. Скачайте APK и разрешите установку из неизвестных источников.
+          3. Укажите адрес сервера, например http://192.168.1.10:3000. Телефон и компьютер должны быть в одной сети.
+          4. Сменить адрес: кнопка ⚙ в правом верхнем углу, долгое нажатие на «Терминал» в шапке или пункт «Настройки сервера» в меню по кнопке «Назад».
+
+          Сервер выполняет команды без авторизации — используйте приложение только в доверенной сети.
+          NOTES
+
           if gh release view apk-latest >/dev/null 2>&1; then
             gh release upload apk-latest dist/arena-terminal.apk --clobber
+            gh release edit apk-latest --notes-file "$RUNNER_TEMP/notes.md"
           else
             gh release create apk-latest dist/arena-terminal.apk \
               --title "Терминал — APK" \
-              --notes "APK из ветки ${{ github.ref_name }} (коммит ${{ github.sha }}). Подпись отладочная. После установки укажите адрес сервера терминала, например http://192.168.1.10:3000 — сервер запускается командой npm start."
+              --notes-file "$RUNNER_TEMP/notes.md"
           fi
