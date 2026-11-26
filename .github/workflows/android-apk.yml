@@ -54,16 +54,22 @@ jobs:
         run: |
           SDK="${ANDROID_HOME:-$ANDROID_SDK_ROOT}"
           BUILD_TOOLS="$(ls -d "$SDK"/build-tools/* | sort -V | tail -1)"
-          "$BUILD_TOOLS/aapt2" dump badging dist/arena-terminal.apk > "$RUNNER_TEMP/badging.txt"
-          grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity):" \
-            "$RUNNER_TEMP/badging.txt" | head -8
+          BADGING="$RUNNER_TEMP/badging.txt"
+          "$BUILD_TOOLS/aapt2" dump badging dist/arena-terminal.apk > "$BADGING"
+
+          APP_PACKAGE="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* name='([^']+)'.*/\1/")"
+          echo "Пакет: $APP_PACKAGE"
+          test "$APP_PACKAGE" = "ai.arena.terminal" || { echo "Неожиданный applicationId: $APP_PACKAGE"; exit 1; }
+          grep -q "^launchable-activity:" "$BADGING" || { echo "В APK нет точки запуска"; exit 1; }
+
+          grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity):" "$BADGING" | head -8
           "$BUILD_TOOLS/apksigner" verify --print-certs dist/arena-terminal.apk | head -4
+
           {
             echo ""
             echo "### Проверка APK"
             echo '```'
-            grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity):" \
-              "$RUNNER_TEMP/badging.txt" | head -8
+            grep -E "^(package|sdkVersion|targetSdkVersion|application-label|launchable-activity):" "$BADGING" | head -8
             "$BUILD_TOOLS/apksigner" verify --print-certs dist/arena-terminal.apk | head -3
             echo '```'
           } >> "$GITHUB_STEP_SUMMARY"
@@ -79,9 +85,27 @@ jobs:
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
         run: |
+          BADGING="$RUNNER_TEMP/badging.txt"
           SIZE="$(du -h dist/arena-terminal.apk | cut -f1)"
           SHA="$(sha256sum dist/arena-terminal.apk | cut -d' ' -f1)"
           SHORT_SHA="$(echo "$GITHUB_SHA" | cut -c1-7)"
+
+          PKG_NAME="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* name='([^']+)'.*/\1/")"
+          VERSION_NAME="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* versionName='([^']*)'.*/\1/")"
+          VERSION_CODE="$(grep -m1 '^package:' "$BADGING" | sed -E "s/.* versionCode='([0-9]+)'.*/\1/")"
+          MIN_SDK="$(grep -m1 '^sdkVersion:' "$BADGING" | sed -E "s/.*'([0-9]+)'.*/\1/")"
+          TARGET_SDK="$(grep -m1 '^targetSdkVersion:' "$BADGING" | sed -E "s/.*'([0-9]+)'.*/\1/")"
+          LABEL="$(grep -m1 '^application-label:' "$BADGING" | sed -E "s/^application-label:'([^']*)'.*/\1/")"
+
+          case "$MIN_SDK" in
+            23) ANDROID_MIN="6.0" ;;
+            24) ANDROID_MIN="7.0" ;;
+            26) ANDROID_MIN="8.0" ;;
+            29) ANDROID_MIN="10" ;;
+            30) ANDROID_MIN="11" ;;
+            31) ANDROID_MIN="12" ;;
+            *) ANDROID_MIN="API $MIN_SDK" ;;
+          esac
 
           cat > "$RUNNER_TEMP/notes.md" <<NOTES
           ## Терминал для Android
@@ -89,10 +113,12 @@ jobs:
           Мобильный клиент терминала: открывает веб-интерфейс вашего сервера и запоминает его адрес.
           После установки укажите адрес сервера — например http://192.168.1.10:3000.
 
-          - **Сборка:** ветка $GITHUB_REF_NAME, коммит $SHORT_SHA
+          - **Название:** $LABEL
+          - **Пакет:** $PKG_NAME, версия $VERSION_NAME (код $VERSION_CODE)
+          - **Android:** $ANDROID_MIN и новее (minSdk $MIN_SDK, targetSdk $TARGET_SDK)
           - **Размер:** $SIZE
           - **SHA-256:** $SHA
-          - **Пакет:** ai.arena.terminal 1.0 (код 1), Android 6.0+
+          - **Сборка:** ветка $GITHUB_REF_NAME, коммит $SHORT_SHA
           - **Подпись:** отладочная (Android Debug) — только для личной установки
 
           ### Как подключиться
