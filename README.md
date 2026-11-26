@@ -1,3 +1,5 @@
+[![APK](https://img.shields.io/badge/APK-скачать-3EE6A4?logo=android&logoColor=white)](https://github.com/alpo01264-collab/-/releases/tag/apk-latest)
+
 # Арена Терминал
 
 Мобильный веб-терминал: оболочка `bash` на сервере, аккуратный тач-интерфейс под телефон
